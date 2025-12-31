@@ -1,5 +1,5 @@
-using UnityEngine;
-using TMPro; // TextMeshPro'ya ulaþmak için
+ï»¿using UnityEngine;
+using TMPro;
 
 namespace FluxPlan.CanvasSystem
 {
@@ -10,20 +10,36 @@ namespace FluxPlan.CanvasSystem
         private float _zCoord;
         private Vector3 _initialScale;
 
-        // Týklama vs Sürükleme ayrýmý için
         private bool _isDragging = false;
         private Vector3 _startClickPos;
+
+        // Statik sayaÃ§: Hangi nota tÄ±klarsan o en Ã¶ne gelir
+        private static int globalSortingOrder = 10;
+
+        private SpriteRenderer _myRenderer;
+        private TextMeshPro _myText;
 
         private void Start()
         {
             _initialScale = transform.localScale;
+            _myRenderer = GetComponent<SpriteRenderer>();
+            _myText = GetComponentInChildren<TextMeshPro>();
         }
 
         private void OnMouseDown()
         {
+            // 1. KamerayÄ± Kilitle (DÃ¼nya kaymasÄ±n)
+            CanvasCameraController.IsLocked = true;
+
+            // 2. Ã–ne Getirme (Sorting)
+            globalSortingOrder++;
+            if (_myRenderer != null) _myRenderer.sortingOrder = globalSortingOrder;
+            if (_myText != null) _myText.sortingOrder = globalSortingOrder + 1;
+
+            // 3. TaÅŸÄ±ma HazÄ±rlÄ±ÄŸÄ±
             _zCoord = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
             _offset = gameObject.transform.position - GetMouseAsWorldPoint();
-            _startClickPos = Input.mousePosition; // Ýlk týkladýðým yer
+            _startClickPos = Input.mousePosition;
 
             transform.localScale = _initialScale * 1.1f;
             _isDragging = false;
@@ -31,26 +47,30 @@ namespace FluxPlan.CanvasSystem
 
         private void OnMouseDrag()
         {
-            // Eðer mouse biraz bile oynadýysa, bu artýk bir sürüklemedir
-            if (Vector3.Distance(_startClickPos, Input.mousePosition) > 10f) // 10 piksel tolerans
+            // Notu taÅŸÄ±
+            transform.position = GetMouseAsWorldPoint() + _offset;
+
+            if (Vector3.Distance(_startClickPos, Input.mousePosition) > 10f)
             {
                 _isDragging = true;
-                transform.position = GetMouseAsWorldPoint() + _offset;
             }
         }
 
         private void OnMouseUp()
         {
+            // 1. KamerayÄ± Serbest BÄ±rak
+            CanvasCameraController.IsLocked = false;
+
             transform.localScale = _initialScale;
 
-            // Eðer hiç sürüklenmediyse, bu bir TIKLAMADIR -> Editörü Aç
+            // EÄŸer sÃ¼rÃ¼kleme yapmadÄ±ysak (Sadece TÄ±klama ise) -> SADECE EDÄ°TÃ–RÃœ AÃ‡
             if (!_isDragging)
             {
-                // Ýçimdeki TextMeshPro bileþenini bul
-                TextMeshPro myText = GetComponentInChildren<TextMeshPro>();
+                // ArtÄ±k burada "Link Modu" kontrolÃ¼ yapmÄ±yoruz.
+                // Ã‡Ã¼nkÃ¼ baÄŸlantÄ±yÄ± notun gÃ¶beÄŸinden deÄŸil, kenarÄ±ndaki noktalardan yapÄ±yoruz.
 
-                // Yöneticiye "Beni düzenle" de
-                CanvasEditorManager.Instance.OpenEditor(gameObject, myText);
+                TextMeshPro textComp = GetComponentInChildren<TextMeshPro>();
+                CanvasEditorManager.Instance.OpenEditor(gameObject, textComp);
             }
         }
 

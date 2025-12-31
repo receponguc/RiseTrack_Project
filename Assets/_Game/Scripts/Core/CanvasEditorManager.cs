@@ -28,7 +28,10 @@ namespace FluxPlan.CanvasSystem
             _currentSelectedText = textComponent;
 
             // Mevcut yazýyý Input Field'a kopyala
-            inputField.text = textComponent.text;
+            if (textComponent != null)
+            {
+                inputField.text = textComponent.text;
+            }
 
             // Paneli aç
             editPanel.SetActive(true);
@@ -41,6 +44,14 @@ namespace FluxPlan.CanvasSystem
             {
                 // Yeni yazýyý nota geri gönder
                 _currentSelectedText.text = inputField.text;
+
+                // --- YENÝ EKLENEN: DÝSKE KAYDET ---
+                // CanvasManager'a seslenip "Dosyayý güncelle" diyoruz.
+                if (CanvasManager.Instance != null)
+                {
+                    CanvasManager.Instance.SaveNotes();
+                }
+                // ----------------------------------
             }
             editPanel.SetActive(false);
         }
@@ -51,14 +62,28 @@ namespace FluxPlan.CanvasSystem
             if (_currentSelectedNote != null)
             {
                 Destroy(_currentSelectedNote);
+
+                // --- YENÝ EKLENEN: SÝLÝNDÝÐÝNÝ KAYDET ---
+                // Notun sahneden silinmesi kare sonunu bulur. 
+                // O yüzden kaydetmeyi 0.1 saniye gecikmeli yapýyoruz ki silinmiþ halini kaydetsin.
+                Invoke(nameof(TriggerSave), 0.1f);
             }
             editPanel.SetActive(false);
         }
-        
-        // 4. Ýptal/Boþluða týklama
+
+        // Gecikmeli kayýt için yardýmcý fonksiyon
+        private void TriggerSave()
+        {
+            if (CanvasManager.Instance != null)
+            {
+                CanvasManager.Instance.SaveNotes();
+            }
+        }
+
+        // 4. Ýptal/Boþluða/X'e týklama
         public void ClosePanel()
         {
-             editPanel.SetActive(false);
+            editPanel.SetActive(false);
         }
     }
 }
