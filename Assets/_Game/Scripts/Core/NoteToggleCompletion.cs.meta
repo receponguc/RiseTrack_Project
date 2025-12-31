@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 85c5d6d4edaecd743948b25156d73d56
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - onayliButtonObj: {fileID: 7321698063306185329, guid: ce38ed94a3ce651409beabd6e51410b7, type: 3}
+  - onaysizButtonObj: {fileID: 5654931046931789571, guid: 393d81000a68d234bbd6eee0515b640d, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
